@@ -1,0 +1,116 @@
+#!/bin/bash
+set -euo pipefail
+
+export DEBIAN_FRONTEND=noninteractive
+
+apt-get update -y
+apt-get install -y curl ca-certificates gnupg
+
+# Install Docker
+install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+chmod a+r /etc/apt/keyrings/docker.asc
+
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+apt-get update -y
+apt-get install -y docker-ce docker-ce-cli containerd.io
+
+systemctl enable docker
+systemctl start docker
+
+# Create config directory
+config_dir="/opt/cs2-server"
+mkdir -p "$config_dir/game/csgo/cfg"
+
+# Create config directory
+config_dir="/opt/cs2-server"
+mkdir -p "$config_dir/game/csgo/cfg"
+
+# Write configuration files
+cat > "$config_dir/game/csgo/cfg/server.cfg" <<'SERVERCFG'
+${server_cfg}
+SERVERCFG
+
+cat > "$config_dir/game/csgo/cfg/autoexec.cfg" <<'AUTOEXECCFG'
+${autoexec_cfg}
+AUTOEXECCFG
+
+cat > "$config_dir/game/csgo/cfg/gamemode_competitive.cfg" <<'COMPCFG'
+${gamemode_competitive_cfg}
+COMPCFG
+
+cat > "$config_dir/game/csgo/cfg/gamemode_casual.cfg" <<'CASUALCFG'
+${gamemode_casual_cfg}
+CASUALCFG
+
+cat > "$config_dir/game/csgo/cfg/gamemode_deathmatch.cfg" <<'DMCFG'
+${gamemode_deathmatch_cfg}
+DMCFG
+
+cat > "$config_dir/game/csgo/cfg/practice.cfg" <<'PRACTICECFG'
+${practice_cfg}
+PRACTICECFG
+
+# Apply custom CVARs if any
+%{ if length(server_cvars) > 0 ~}
+cat >> "$config_dir/game/csgo/cfg/server.cfg" <<'CUSTOMCVARS'
+
+// Custom CVARs from Terraform
+%{ for key, value in server_cvars ~}
+${key} "${value}"
+%{ endfor ~}
+CUSTOMCVARS
+%{ endif ~}
+
+# Build Docker run command with proper environment variables
+workshop_args=""
+%{ if workshop_collection_id != "" && workshop_start_map_id != "" ~}
+workshop_args="-e CS2_WORKSHOP_COLLECTION_ID=${workshop_collection_id} -e CS2_WORKSHOP_START_MAP_ID=${workshop_start_map_id}"
+%{ endif ~}
+
+cat > /etc/systemd/system/cs2.service <<EOF
+[Unit]
+Description=CS2 Dedicated Server (Docker)
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+ExecStartPre=-/usr/bin/docker stop cs2-server
+ExecStartPre=-/usr/bin/docker rm cs2-server
+ExecStart=/usr/bin/docker run --rm --name cs2-server \\
+  --network=host \\
+  -v $config_dir:/home/steam/cs2-dedicated \\
+  -e SRCDS_TOKEN=${gslt} \\
+  -e CS2_SERVERNAME="${server_name}" \\
+  -e CS2_PORT=27015 \\
+  -e CS2_MAXPLAYERS=${max_players} \\
+  -e CS2_STARTMAP=${default_map} \\
+  -e CS2_TICKRATE=${tickrate} \\
+  -e CS2_GAMEALIAS=${game_mode} \\
+  $workshop_args \\
+  joedwards32/cs2:latest
+ExecStop=/usr/bin/docker stop cs2-server
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl daemon-reload
+
+# Pull Docker image
+echo "Pulling CS2 Docker image..."
+docker pull joedwards32/cs2:latest
+
+if [ -n "${gslt}" ]; then
+  echo "Starting CS2 server..."
+  systemctl enable --now cs2.service
+else
+  echo "GSLT is empty. Add GSLT to terraform.tfvars and re-apply." > /opt/cs2-server/gslt-missing.txt
+fi

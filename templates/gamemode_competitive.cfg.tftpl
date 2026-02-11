@@ -1,0 +1,59 @@
+// Competitive 5v5 Configuration
+// MR12 format (first to 13 rounds wins)
+
+echo "Loading Competitive (5v5) settings"
+
+// Game mode
+game_mode 1
+game_type 0
+
+// Match settings
+mp_maxrounds 24
+mp_overtime_enable 1
+mp_overtime_maxrounds 6
+mp_overtime_startmoney 10000
+
+// Round settings
+mp_roundtime 1.92
+mp_roundtime_defuse 1.92
+mp_roundtime_hostage 1.92
+mp_freezetime 15
+mp_buytime 20
+mp_buy_anywhere 0
+mp_buy_during_immunity 0
+
+// Money
+mp_startmoney 800
+mp_maxmoney 16000
+mp_playercashawards 1
+mp_teamcashawards 1
+
+// Team settings
+mp_teammates_are_enemies 0
+mp_forcecamera 1
+mp_force_pick_time 15
+mp_halftime 1
+mp_match_can_clinch 1
+
+// Damage & Armor
+mp_damage_headshot_only 0
+mp_friendlyfire 1
+mp_tkpunish 0
+
+// Death & Respawn
+mp_respawn_on_death_ct 0
+mp_respawn_on_death_t 0
+mp_respawn_immunitytime 0
+
+// Spectator
+sv_allow_votes 1
+sv_talk_enemy_dead 0
+sv_talk_enemy_living 0
+sv_deadtalk 1
+sv_alltalk 0
+
+// Timeouts
+mp_team_timeout_max 4
+mp_team_timeout_time 30
+
+echo "Competitive mode loaded"

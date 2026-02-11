@@ -1,0 +1,21 @@
+{
+  "files.exclude": {
+    "**/.terraform": true,
+    "**/.terraform.lock.hcl": false,
+    "**/terraform.tfstate": true,
+    "**/terraform.tfstate.backup": true
+  },
+  "files.watcherExclude": {
+    "**/.terraform/**": true
+  },
+  "[terraform]": {
+    "editor.defaultFormatter": "hashicorp.terraform",
+    "editor.formatOnSave": true,
+    "editor.formatOnSaveMode": "file"
+  },
+  "[terraform-vars]": {
+    "editor.defaultFormatter": "hashicorp.terraform",
+    "editor.formatOnSave": true
+  },
+  "terraform.validation.enableEnhancedValidation": true
+}

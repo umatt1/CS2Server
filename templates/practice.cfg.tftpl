@@ -1,0 +1,41 @@
+// Practice Mode Configuration
+// Useful for warmup, grenade practice, testing strats
+
+echo "Loading Practice mode settings"
+
+// Basic settings
+sv_cheats 1
+sv_infinite_ammo 2  // Reloading required but infinite reserve
+ammo_grenade_limit_total 5
+
+// Money
+mp_maxmoney 60000
+mp_startmoney 60000
+mp_buytime 9999
+mp_buy_anywhere 1
+mp_buy_during_immunity 0
+
+// Round settings
+mp_roundtime 60
+mp_roundtime_defuse 60
+mp_freezetime 0
+mp_warmup_pausetimer 1
+mp_restartgame 1
+
+// Respawn
+mp_respawn_on_death_ct 0
+mp_respawn_on_death_t 0
+
+// Grenades
+sv_grenade_trajectory 1
+sv_grenade_trajectory_time 10
+sv_showimpacts 1
+sv_showimpacts_time 10
+
+// Rcon commands example (must be executed via rcon, not in cfg)
+// rcon mp_restartgame 1
+// rcon bot_kick
+// rcon sv_rethrow_last_grenade
+
+echo "Practice mode loaded - sv_cheats 1 enabled"
+echo "Use 'rcon sv_rethrow_last_grenade' to practice grenades"
