@@ -1,0 +1,110 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "terraform: validate",
+      "type": "shell",
+      "command": "terraform validate",
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "terraform: plan",
+      "type": "shell",
+      "command": "terraform plan",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "terraform: apply",
+      "type": "shell",
+      "command": "terraform apply",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "terraform: destroy",
+      "type": "shell",
+      "command": "terraform destroy",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "server: check status",
+      "type": "shell",
+      "command": "ssh -i ~/.ssh/id_rsa ubuntu@$(terraform output -raw public_ip) 'sudo systemctl status cs2.service --no-pager'",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "server: watch logs",
+      "type": "shell",
+      "command": "ssh -i ~/.ssh/id_rsa ubuntu@$(terraform output -raw public_ip) 'sudo journalctl -u cs2.service -f'",
+      "problemMatcher": [],
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "server: check download progress",
+      "type": "shell",
+      "command": "ssh -i ~/.ssh/id_rsa ubuntu@$(terraform output -raw public_ip) 'sudo docker logs cs2-server 2>&1 | grep \"Update state\" | tail -5'",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "server: ssh connect",
+      "type": "shell",
+      "command": "ssh -i ~/.ssh/id_rsa ubuntu@$(terraform output -raw public_ip)",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "server: restart",
+      "type": "shell",
+      "command": "ssh -i ~/.ssh/id_rsa ubuntu@$(terraform output -raw public_ip) 'sudo systemctl restart cs2.service'",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "server: get IP",
+      "type": "shell",
+      "command": "terraform output -raw public_ip && echo '' && terraform output -raw cs2_connect",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    }
+  ]
+}
