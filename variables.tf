@@ -10,6 +10,29 @@ variable "instance_type" {
   default     = "t3.medium"
 }
 
+variable "use_spot_instance" {
+  description = "Use spot instance instead of on-demand for cost savings (70% cheaper but can be interrupted)."
+  type        = bool
+  default     = false
+}
+
+variable "spot_max_price" {
+  description = "Maximum price for spot instances. Default empty means on-demand price (recommended)."
+  type        = string
+  default     = ""
+}
+
+variable "spot_interruption_behavior" {
+  description = "What to do when spot instance is interrupted: terminate, stop, or hibernate."
+  type        = string
+  default     = "terminate"
+  
+  validation {
+    condition     = contains(["terminate", "stop", "hibernate"], var.spot_interruption_behavior)
+    error_message = "Spot interruption behavior must be: terminate, stop, or hibernate."
+  }
+}
+
 variable "project_name" {
   description = "Name used for tagging and resource prefixes."
   type        = string

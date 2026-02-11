@@ -114,6 +114,19 @@ resource "aws_instance" "server" {
   key_name                    = aws_key_pair.server.key_name
   associate_public_ip_address = true
   
+  # Spot instance configuration (optional)
+  dynamic "instance_market_options" {
+    for_each = var.use_spot_instance ? [1] : []
+    content {
+      market_type = "spot"
+      spot_options {
+        max_price                      = var.spot_max_price != "" ? var.spot_max_price : null
+        spot_instance_type             = "one-time"
+        instance_interruption_behavior = var.spot_interruption_behavior
+      }
+    }
+  }
+  
   root_block_device {
     volume_size = 80  # GB - CS2 needs ~35GB + extraction space
     volume_type = "gp3"

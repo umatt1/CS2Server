@@ -6,6 +6,14 @@ public_key_path = "/Users/you/.ssh/id_rsa.pub"
 ssh_allowed_cidr = "0.0.0.0/0"
 cs2_allowed_cidr = "0.0.0.0/0"
 
+# Spot Instance Configuration (Cost Optimization)
+# Spot instances are ~70% cheaper but can be interrupted with 2-min warning
+# Good for: testing, personal servers, on-demand usage
+# Not ideal for: 24/7 production, competitive matches
+use_spot_instance = false  # Set to true to enable spot instances
+spot_max_price = ""  # Leave empty to use on-demand price as max (recommended)
+spot_interruption_behavior = "terminate"  # terminate, stop, or hibernate
+
 # CS2 Application
 cs2_app_id = 730
 
