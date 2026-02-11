@@ -101,92 +101,142 @@ module "practice_server" {
 
 ---
 
-## Phase 3: Web Dashboard (Weeks 5-8)
+## Phase 3: Discord Bot Interface (Weeks 5-6) 🎯 **STRATEGIC PIVOT**
 
 ### Goal
-Build web interface for starting/stopping servers on-demand (Refrag-style)
+Build Discord bot for server management - **60-70% faster than web dashboard**, natural fit for CS2 gaming community
+
+### Why Discord Bot?
+- ✅ **Users already there**: CS2 players coordinate on Discord
+- ✅ **Built-in auth**: No need to build user system
+- ✅ **Real-time notifications**: Webhooks, embeds, DMs
+- ✅ **Community features**: Voice channels, roles, permissions
+- ✅ **Faster development**: 2 weeks vs 6-8 weeks for web
 
 ### Components
 
-#### 3.1 Backend API (Flask/FastAPI)
+#### 3.1 Discord Bot (discord.py or discord.js)
+**Slash Commands:**
 ```python
-# Endpoints
-POST   /api/servers/start       # Start new server
-POST   /api/servers/{id}/stop   # Stop server
-GET    /api/servers/{id}        # Server status
-GET    /api/servers             # List user's servers
-GET    /api/servers/{id}/connect # Get connect info
+/server start mode:retakes map:de_dust2 tickrate:128
+/server stop server_id:abc123
+/server status
+/server list
+/server connect server_id:abc123
+/server usage  # Show remaining hours
 ```
 
-#### 3.2 Terraform Automation
-- Wrap Terraform CLI in Python
-- Dynamic workspace creation per user/server
-- Auto-cleanup on stop
-- Output parsing for IP/connect string
+**Embeds & Notifications:**
+- Server starting (with progress updates)
+- Server ready (with connect command)
+- Server stopped
+- Usage warnings (80%, 90%, 100% used)
 
-#### 3.3 Frontend (React/Next.js)
-- Login/registration
-- Server creation form (mode, region, map)
-- Active servers list
-- Connect button (steam:// protocol)
-- Usage tracking
+#### 3.2 Backend Service (Python)
+- Terraform wrapper module (reuse from Phase 2)
+- SQLite/PostgreSQL for user tracking
+- Discord user ID → server mappings
+- Usage tracking and limits
+
+#### 3.3 Admin Features
+- Server management commands
+- User usage reports
+- Ban/whitelist users
+- Server cleanup tasks
 
 ### Tasks
-- [ ] Set up Flask/FastAPI backend
+- [ ] Set up Discord bot with discord.py
+- [ ] Implement slash command handlers
 - [ ] Create Terraform wrapper module
-- [ ] Build authentication system (JWT)
-- [ ] Create React frontend
-- [ ] Implement server start/stop flow
-- [ ] Add real-time status updates
-- [ ] Deploy web app to AWS/Vercel
+- [ ] Build user/server tracking database
+- [ ] Add rich embeds for status updates
+- [ ] Implement usage limits
+- [ ] Deploy bot to cloud (Railway, Fly.io, EC2)
+- [ ] Create Discord server for community
 
 ### Success Criteria
-- Click button → server starts in 2 min
+- `/server start` → server starts in 2 min
+- Rich embeds show server status
 - Auto-shutdown after 30 min idle
-- Users can see connection info
-- Basic billing tracking
+- Users get DM when server ready
+- Usage tracking prevents overages
+- Bot responds in <2 seconds
+
+### Example User Flow
+```
+User: /server start mode:retakes tickrate:128
+Bot:  🚀 Starting your CS2 Retakes server...
+      Region: us-east-2
+      Estimated: 35 minutes
+      [Progress bar]
+      
+      You have 15 hours remaining this month.
+
+[35 minutes later]
+Bot (DM): ✅ Your server is ready!
+          connect 3.139.108.216:27015
+          Mode: Retakes
+          [Copy Command] [Stop Server]
+```
 
 ---
 
-## Phase 4: Billing & Payments (Weeks 9-10)
+## Phase 4: Monetization via Discord + Patreon/Ko-fi (Weeks 7-8)
 
 ### Goal
-Implement Stripe subscription and usage-based billing
+Monetize through Discord Server Boosts + Patreon/Ko-fi - **simpler than Stripe integration**
 
-### Pricing Strategy
+### Monetization Strategy
+
+#### Option A: Discord Server Boosts (Easiest)
+- **Free Tier**: 5 hours/month, vanilla mode only
+- **Server Booster**: Boost our Discord → 20 hours/month, all modes
+- **Nitro Boosters**: 40 hours/month, priority support
+
+Discord handles payments, we just check boost status via API.
+
+#### Option B: Patreon/Ko-fi Integration
 ```
-Tier 1 - Basic: $7/month
+Tier 1 - Basic: $7/month (Patreon)
 - 20 hours server time
 - 3 game modes (retake, deathmatch, practice)
 - US regions only
 
-Tier 2 - Pro: $15/month
+Tier 2 - Pro: $15/month (Patreon)
 - 60 hours server time
 - All game modes
 - All regions
 - Priority support
 
-Tier 3 - Team: $50/month
+Tier 3 - Team: $50/month (Patreon)
 - 200 hours server time
 - 5 simultaneous servers
 - Custom configs
 - Team management
 ```
 
+#### Option C: Hybrid (Recommended)
+- Free users: 5 hours/month
+- Discord Boost: 10 hours/month bonus
+- Patreon subscribers: Full tier benefits
+- Link Patreon to Discord for auto-role assignment
+
 ### Tasks
-- [ ] Integrate Stripe API
-- [ ] Create subscription plans
-- [ ] Track server usage hours per user
-- [ ] Implement usage limits
-- [ ] Add payment history page
-- [ ] Handle failed payments
-- [ ] Add monthly billing cycle
+- [ ] Implement usage tracking per Discord user
+- [ ] Add Patreon OAuth integration
+- [ ] Create Patreon webhook handler
+- [ ] Add Discord role-based limits
+- [ ] Build usage dashboard command
+- [ ] Implement auto-stop when out of credits
+- [ ] Send monthly usage reports via DM
+- [ ] Set up Ko-fi as alternative payment
 
 ### Success Criteria
-- Users can sign up and pay
-- Usage tracked accurately
+- Users link Patreon to Discord seamlessly
+- Usage tracked accurately per user
 - Auto-stop servers when out of credits
-- Monthly invoices sent
+- Monthly usage summaries sent
+- Payment status syncs within 5 minutes
 
 ---
 
@@ -218,7 +268,33 @@ Tier 3 - Team: $50/month
 
 ---
 
-## Phase 6: Scale & Optimize (Weeks 15-16)
+## Phase 6: Optional Web Dashboard (Weeks 15-18)
+
+### Goal
+Build web companion to Discord bot (only if needed after validating Discord approach)
+
+### Components
+- Simple landing page (marketing)
+- Discord OAuth login
+- Server management dashboard
+- Usage statistics graphs
+- Demo file downloads
+
+### Why Optional?
+- Discord bot may be sufficient
+- Build only if users request web access
+- Keep it minimal - Discord is primary interface
+
+### Tasks
+- [ ] Build Next.js landing page
+- [ ] Add Discord OAuth
+- [ ] Create dashboard with server list
+- [ ] Add usage graphs
+- [ ] Deploy to Vercel
+
+---
+
+## Phase 7: Scale & Optimize (Weeks 19-20)
 
 ### Infrastructure Optimization
 - [ ] Pre-baked AMI with CS2 pre-installed (saves 30 min)
@@ -246,7 +322,7 @@ Goal: $0.008/hour via:
 
 ---
 
-## Phase 7: Go-to-Market (Weeks 17-20)
+## Phase 8: Go-to-Market (Weeks 21-24)
 
 ### Launch Strategy
 
@@ -293,11 +369,19 @@ Month 12: 1000 users × $7 = $7,000/mo
 
 Costs:
 - AWS: ~$500/mo (1000 users × 10 hours × $0.012/hour × 4 servers)
-- Platform: $200/mo (web hosting, database, monitoring)
+- Platform: $50/mo (Discord bot hosting, database)
+- Patreon fees: ~$200/mo (8% + processing)
 - Marketing: $500/mo
-Total costs: $1,200/mo
+Total costs: $1,250/mo
 
-Net profit (month 12): $5,800/mo
+Net profit (month 12): $5,750/mo
+
+**Cost savings vs web approach:**
+- No web hosting needed
+- No frontend development time
+- No JWT/auth system to maintain
+- Discord handles user management
+- Patreon handles payment processing
 ```
 
 ### Optimistic (Year 1)
@@ -317,18 +401,21 @@ Net profit: $26,000/mo
 - ✅ More AWS regions available
 - ✅ Developer-friendly (IaC as product)
 - ✅ Lower pricing potential
+- ✅ **Discord-native** (users already there)
 
 ### vs Commercial Hosts
 - ✅ Specialized for training (not just servers)
-- ✅ Modern UI/UX
-- ✅ One-click deployment
+- ✅ **Discord bot interface** (no new login needed)
+- ✅ One-click deployment via slash commands
 - ✅ Usage-based pricing (pay for what you use)
+- ✅ **Community built-in** (Discord server)
 
 ### vs Self-Hosting
 - ✅ No technical knowledge required
 - ✅ Multi-region support
 - ✅ Professional support
 - ✅ Managed updates
+- ✅ **Discord commands** (no SSH, no CLI)
 
 ---
 
@@ -340,17 +427,22 @@ Net profit: $26,000/mo
 - **Container**: Docker (joedwards32/cs2)
 - **Cost Optimization**: Spot instances
 
-### Backend
-- **API**: Python FastAPI or Flask
-- **Database**: PostgreSQL (user data, usage tracking)
-- **Queue**: Redis (server job queue)
-- **Storage**: S3 (demos, configs)
-- **Auth**: JWT tokens
+### Discord Bot
+- **Framework**: discord.py (Python) or discord.js (Node.js)
+- **Commands**: Slash commands + context menus
+- **Database**: SQLite/PostgreSQL (user/server tracking)
+- **Hosting**: Railway.app, Fly.io, or AWS EC2
+- **Auth**: Discord OAuth (built-in)
 
-### Frontend
-- **Framework**: React + Next.js
-- **Styling**: Tailwind CSS
-- **State**: React Query
+### Backend Service
+- **API**: Python FastAPI (Terraform wrapper)
+- **Job Queue**: Redis (async server operations)
+- **Storage**: S3 (demos, logs)
+- **Monitoring**: Discord webhooks for alerts
+
+### Web Dashboard (Optional - Phase 6)
+- **Framework**: Next.js (minimal landing page)
+- **Auth**: Discord OAuth
 - **Hosting**: Vercel
 
 ### Game Server
@@ -388,17 +480,26 @@ Net profit: $26,000/mo
 
 ## Next Actions (This Week)
 
+### Phase 1 - Testing ✅
 1. ✅ Add spot instance support (DONE)
 2. ✅ Commit and push changes (DONE)
 3. ✅ Automate CounterStrikeSharp installation (DONE)
 4. ✅ Automate CS2-Retakes plugin installation (DONE)
 5. ✅ Create plugin_mode variable in Terraform (DONE)
 6. ✅ Update terraform.tfvars.example with plugin_mode (DONE)
-7. [ ] **Deploy test server with plugin_mode="retakes"**
-8. [ ] **Verify CounterStrikeSharp loads successfully**
-9. [ ] **Test retake mode with 2-3 people**
-10. [ ] **Document plugin usage in ENHANCEMENTS.md**
-11. [ ] **Test practice-plus and deathmatch-custom modes**
+7. ✅ **Strategic pivot to Discord Bot** (DONE)
+8. [ ] **Deploy test server with plugin_mode="retakes"**
+9. [ ] **Verify CounterStrikeSharp loads successfully**
+10. [ ] **Test retake mode with 2-3 people**
+
+### Phase 2 - Multi-Server (Next)
+11. [ ] Create Terraform module for reusable servers
+12. [ ] Test 3 simultaneous servers
+
+### Phase 3 - Discord Bot (After Phase 2)
+13. [ ] Set up Discord bot project
+14. [ ] Implement `/server start` command
+15. [ ] Test bot in private Discord server
 
 ---
 
@@ -411,21 +512,24 @@ Net profit: $26,000/mo
 - Infrastructure monitoring
 
 **Backend Skills:**
-- RESTful API design
-- Payment integration
+- Discord bot development (discord.py/discord.js)
+- Slash command architecture
+- Webhook integrations
+- Patreon/Ko-fi API integration
 - Usage tracking/metering
-- Job queue management
 
 **Product Skills:**
-- SaaS business model
-- User acquisition
-- Pricing strategy
-- Customer support
+- Community-first product design
+- Discord-native monetization
+- User acquisition in gaming communities
+- Lean MVP development
+- Strategic pivots based on user behavior
 
 **Gaming Industry:**
 - CS2 server administration
 - Plugin development ecosystem
 - Gaming community dynamics
+- Discord server management
 - Modded server economics
 
 ---
