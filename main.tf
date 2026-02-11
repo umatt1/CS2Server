@@ -113,6 +113,13 @@ resource "aws_instance" "server" {
   vpc_security_group_ids      = [aws_security_group.server.id]
   key_name                    = aws_key_pair.server.key_name
   associate_public_ip_address = true
+  
+  root_block_device {
+    volume_size = 80  # GB - CS2 needs ~35GB + extraction space
+    volume_type = "gp3"
+    encrypted   = true
+  }
+  
   user_data                   = templatefile("${path.module}/user_data.sh.tftpl", {
     cs2_app_id                = var.cs2_app_id
     server_name               = var.server_name
