@@ -113,7 +113,7 @@ resource "aws_instance" "server" {
   vpc_security_group_ids      = [aws_security_group.server.id]
   key_name                    = aws_key_pair.server.key_name
   associate_public_ip_address = true
-  
+
   # Spot instance configuration (optional)
   dynamic "instance_market_options" {
     for_each = var.use_spot_instance ? [1] : []
@@ -126,30 +126,31 @@ resource "aws_instance" "server" {
       }
     }
   }
-  
+
   root_block_device {
-    volume_size = 80  # GB - CS2 needs ~35GB + extraction space
+    volume_size = 80 # GB - CS2 needs ~35GB + extraction space
     volume_type = "gp3"
     encrypted   = true
   }
-  
-  user_data                   = templatefile("${path.module}/user_data.sh.tftpl", {
-    cs2_app_id                = var.cs2_app_id
-    server_name               = var.server_name
-    default_map               = var.default_map
-    gslt                      = var.gslt
-    max_players               = var.max_players
-    tickrate                  = var.tickrate
-    game_mode                 = var.game_mode
-    workshop_collection_id    = var.workshop_collection_id
-    workshop_start_map_id     = var.workshop_start_map_id
-    server_cvars              = var.server_cvars
-    server_cfg                = local.server_cfg
-    autoexec_cfg              = local.autoexec_cfg
-    gamemode_competitive_cfg  = local.gamemode_competitive_cfg
-    gamemode_casual_cfg       = local.gamemode_casual_cfg
-    gamemode_deathmatch_cfg   = local.gamemode_deathmatch_cfg
-    practice_cfg              = local.practice_cfg
+
+  user_data = templatefile("${path.module}/user_data.sh.tftpl", {
+    cs2_app_id               = var.cs2_app_id
+    server_name              = var.server_name
+    default_map              = var.default_map
+    gslt                     = var.gslt
+    max_players              = var.max_players
+    tickrate                 = var.tickrate
+    game_mode                = var.game_mode
+    plugin_mode              = var.plugin_mode
+    workshop_collection_id   = var.workshop_collection_id
+    workshop_start_map_id    = var.workshop_start_map_id
+    server_cvars             = var.server_cvars
+    server_cfg               = local.server_cfg
+    autoexec_cfg             = local.autoexec_cfg
+    gamemode_competitive_cfg = local.gamemode_competitive_cfg
+    gamemode_casual_cfg      = local.gamemode_casual_cfg
+    gamemode_deathmatch_cfg  = local.gamemode_deathmatch_cfg
+    practice_cfg             = local.practice_cfg
   })
   user_data_replace_on_change = true
 

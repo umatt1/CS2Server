@@ -31,6 +31,15 @@ tickrate = 64  # 64 or 128 (higher = more responsive but more CPU)
 game_mode = "competitive"  # competitive, casual, deathmatch, or practice
 default_map = "de_dust2"
 
+# Plugin Configuration
+# vanilla: No plugins installed (base CS2)
+# retakes: Post-plant scenarios with automatic loadouts
+# practice-plus: Enhanced practice mode with .noclip, .god, .bot commands
+# deathmatch-custom: Custom deathmatch with weapon menu and instant respawn
+# executes: Site execute practice (plugin availability TBD)
+# prefire: Angle training mode (plugin availability TBD)
+plugin_mode = "vanilla"
+
 # Workshop Configuration (optional)
 # Get collection ID from workshop URL: steamcommunity.com/sharedfiles/filedetails/?id=COLLECTION_ID
 # Get map ID from map URL: steamcommunity.com/sharedfiles/filedetails/?id=MAP_ID

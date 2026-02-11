@@ -26,7 +26,7 @@ variable "spot_interruption_behavior" {
   description = "What to do when spot instance is interrupted: terminate, stop, or hibernate."
   type        = string
   default     = "terminate"
-  
+
   validation {
     condition     = contains(["terminate", "stop", "hibernate"], var.spot_interruption_behavior)
     error_message = "Spot interruption behavior must be: terminate, stop, or hibernate."
@@ -111,6 +111,16 @@ variable "game_mode" {
   validation {
     condition     = contains(["competitive", "casual", "deathmatch", "practice"], var.game_mode)
     error_message = "Game mode must be one of: competitive, casual, deathmatch, practice."
+  }
+}
+
+variable "plugin_mode" {
+  description = "Primary plugin mode for this server: vanilla (no plugins), retakes, executes, practice-plus, prefire, or deathmatch-custom."
+  type        = string
+  default     = "vanilla"
+  validation {
+    condition     = contains(["vanilla", "retakes", "executes", "practice-plus", "prefire", "deathmatch-custom"], var.plugin_mode)
+    error_message = "Plugin mode must be one of: vanilla, retakes, executes, practice-plus, prefire, deathmatch-custom."
   }
 }
 

@@ -108,6 +108,71 @@ systemctl daemon-reload
 echo "Pulling CS2 Docker image..."
 docker pull joedwards32/cs2:latest
 
+# Install CounterStrikeSharp and plugins
+%{ if plugin_mode != "vanilla" ~}
+echo "Installing CounterStrikeSharp framework..."
+mkdir -p /tmp/css-install
+cd /tmp/css-install
+
+# Download latest CounterStrikeSharp
+CSS_VERSION=$(curl -s https://api.github.com/repos/roflmuffin/CounterStrikeSharp/releases/latest | grep '"tag_name"' | sed -E 's/.*"v([^"]+)".*/\1/')
+wget -q "https://github.com/roflmuffin/CounterStrikeSharp/releases/download/v$${CSS_VERSION}/counterstrikesharp-with-runtime-build-$${CSS_VERSION}-linux-*.zip" -O css.zip
+unzip -q css.zip -d "$config_dir/game/csgo"
+rm css.zip
+
+echo "CounterStrikeSharp $${CSS_VERSION} installed"
+
+# Install plugins based on mode
+case "${plugin_mode}" in
+  "retakes")
+    echo "Installing CS2-Retakes plugin..."
+    mkdir -p "$config_dir/game/csgo/addons/counterstrikesharp/plugins/CS2Retake"
+    cd "$config_dir/game/csgo/addons/counterstrikesharp/plugins/CS2Retake"
+    RETAKE_VERSION=$(curl -s https://api.github.com/repos/b3none/cs2-retakes/releases/latest | grep '"tag_name"' | sed -E 's/.*"([^"]+)".*/\1/')
+    wget -q "https://github.com/b3none/cs2-retakes/releases/download/$${RETAKE_VERSION}/CS2Retake-$${RETAKE_VERSION}.zip" -O retake.zip
+    unzip -q retake.zip
+    rm retake.zip
+    echo "CS2-Retakes $${RETAKE_VERSION} installed"
+    ;;
+    
+  "practice-plus")
+    echo "Installing Practice Mode plugin..."
+    mkdir -p "$config_dir/game/csgo/addons/counterstrikesharp/plugins/PracticeMode"
+    cd "$config_dir/game/csgo/addons/counterstrikesharp/plugins/PracticeMode"
+    wget -q "https://github.com/lengran/cs2-practice-plugin/releases/latest/download/PracticeMode.zip" -O practice.zip
+    unzip -q practice.zip
+    rm practice.zip
+    echo "Practice Mode plugin installed"
+    ;;
+    
+  "deathmatch-custom")
+    echo "Installing Deathmatch Core plugin..."
+    mkdir -p "$config_dir/game/csgo/addons/counterstrikesharp/plugins/Deathmatch"
+    cd "$config_dir/game/csgo/addons/counterstrikesharp/plugins/Deathmatch"
+    wget -q "https://github.com/KillStr3aK/cs2-deathmatch/releases/latest/download/Deathmatch-core.zip" -O dm.zip
+    unzip -q dm.zip
+    rm dm.zip
+    echo "Deathmatch Core plugin installed"
+    ;;
+    
+  "executes")
+    echo "Executes plugin - community plugin URL needed, skipping for now"
+    ;;
+    
+  "prefire")
+    echo "Prefire plugin - community plugin URL needed, skipping for now"
+    ;;
+    
+  *)
+    echo "Unknown plugin mode: ${plugin_mode}"
+    ;;
+esac
+
+cd /
+rm -rf /tmp/css-install
+echo "Plugin installation complete for mode: ${plugin_mode}"
+%{ endif ~}
+
 if [ -n "${gslt}" ]; then
   echo "Starting CS2 server..."
   systemctl enable --now cs2.service

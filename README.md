@@ -175,13 +175,32 @@ RCON password is set via `rcon_password` in `terraform.tfvars`. To use RCON:
 
 2. Connect with an RCON tool pointing to `localhost:27015`
 
-### Plugins & Mods
+### Plugins & Mods ✨ NEW
 
-To add plugins (CounterStrikeSharp, SourceMod, etc.):
+**Automated plugin installation is now supported!** Set `plugin_mode` in `terraform.tfvars` to automatically install CounterStrikeSharp and community plugins.
+
+#### Available Plugin Modes
+
+- **vanilla**: No plugins (base CS2 server)
+- **retakes**: CS2-Retakes plugin for post-plant practice scenarios
+- **practice-plus**: Enhanced practice mode with `.noclip`, `.god`, `.bot` commands
+- **deathmatch-custom**: Custom deathmatch with weapon menu and instant respawn
+- **executes**: Site execute practice (TBD - community plugin needed)
+- **prefire**: Angle training mode (TBD - community plugin needed)
+
+#### Usage
+
+```hcl
+# In terraform.tfvars
+plugin_mode = "retakes"  # Choose your mode
+```
+
+Run `terraform apply` and the plugin framework + chosen plugin will be automatically installed during server bootstrap.
+
+**Manual Plugin Installation** (for custom plugins):
 
 1. SSH to the server
-2. Install the plugin framework to `/opt/cs2-server/game/csgo/`
-3. Configure in `addons/` directory
-4. Restart the container: `sudo systemctl restart cs2`
+2. Install plugin to `/opt/cs2-server/game/csgo/addons/counterstrikesharp/plugins/`
+3. Restart: `sudo systemctl restart cs2.service`
 
-**Note:** Plugin installation is currently manual. Terraform automation for plugins is a future enhancement. Plugins installed in `/opt/cs2-server` persist across container restarts.
+Plugins persist across container restarts since they're in `/opt/cs2-server` (mounted volume).

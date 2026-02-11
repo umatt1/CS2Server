@@ -2,13 +2,13 @@
 
 **Date:** February 11, 2026  
 **Branch:** `copilot/add-cs2-server-terraform`  
-**Status:** ✅ **OPERATIONAL** - Server downloading CS2, ready for enhancements
+**Status:** 🚀 **PHASE 1 IN PROGRESS** - Plugin framework integrated, ready for deployment
 
 ## Project Overview
 
-Fully-configured Counter-Strike 2 dedicated server on AWS using Terraform. Infrastructure is deployed, CS2 is downloading, and the server will be ready for gameplay and customization shortly.
+Fully-configured Counter-Strike 2 dedicated server on AWS using Terraform with **automated plugin installation**. Infrastructure code now includes CounterStrikeSharp framework and support for 3 training modes (retakes, practice-plus, deathmatch-custom).
 
-**Current Server:** `connect 3.139.108.216:27015`
+**Server Status:** Infrastructure tore down - ready for incremental deployment with plugins
 
 ## What's Working ✅
 
@@ -42,10 +42,30 @@ Fully-configured Counter-Strike 2 dedicated server on AWS using Terraform. Infra
 - **Variables**: Comprehensive configuration options
   - Tickrate: 64 or 128 (validated)
   - Game modes: competitive/casual/deathmatch/practice (validated)
+  - **Plugin modes**: vanilla/retakes/practice-plus/deathmatch-custom (NEW ✨)
   - Workshop: collection_id and start_map_id support
   - Custom CVARs: Map of additional server settings
   - Passwords: Server password, RCON password (sensitive)
   - GSLT: Game Server Login Token (sensitive)
+  - Spot instance: Cost optimization with 70% savings
+
+### Plugin System (NEW - Phase 1) ✨
+- **CounterStrikeSharp Framework**: Automated installation during server bootstrap
+  - Latest version fetched from GitHub releases
+  - Installed to `/opt/cs2-server/game/csgo/addons/counterstrikesharp`
+  
+- **Supported Plugin Modes**:
+  - `vanilla`: No plugins (base CS2 server)
+  - `retakes`: CS2-Retakes plugin for post-plant practice
+  - `practice-plus`: Enhanced practice with .noclip, .god, .bot commands
+  - `deathmatch-custom`: Custom DM with weapon menu and instant respawn
+  - `executes`: Placeholder (community plugin TBD)
+  - `prefire`: Placeholder (community plugin TBD)
+
+- **Automated Plugin Installation**: Plugins download and install during user_data bootstrap
+  - Version detection via GitHub API
+  - Automatic unzip and configuration
+  - No manual SSH required
 
 - **Files Generated**: All configs written to `/opt/cs2-server/game/csgo/cfg/`
   - Mounted as Docker volume
@@ -367,11 +387,91 @@ server_cvars = {
 - Practice server + competitive server
 - Test server for plugin development
 
-## Immediate Action Items
+## Immediate Action Items - Phase 1 Deployment Testing
 
-1. **Wait for Download** (~30-40 min remaining)
-2. **Test Basic Connectivity**: `connect 3.139.108.216:27015`
-3. **Verify Config Loading**: Check that competitive mode loads correctly
-4. **Test RCON Access**: Connect and run basic commands
-5. **Play a Match**: Test with friends to validate gameplay
-6. **Choose Enhancements**: Pick from the list above based on priorities
+### Step 1: Configure Plugin Mode
+Edit `terraform.tfvars` and set your desired plugin mode:
+
+```hcl
+# Choose one: vanilla, retakes, practice-plus, deathmatch-custom
+plugin_mode = "retakes"
+
+# Other required settings
+gslt = "YOUR_GSLT_TOKEN"  # Get from steamcommunity.com/dev/managegameservers
+rcon_password = "your-secure-password"
+```
+
+### Step 2: Deploy the Server
+```bash
+terraform validate  # Ensure config is valid
+terraform plan      # Review what will be deployed
+terraform apply     # Deploy the infrastructure
+```
+
+Deployment takes ~3-5 minutes for infrastructure + 30-40 minutes for CS2 download.
+
+### Step 3: Monitor Installation Progress
+```bash
+# Get server IP
+terraform output
+
+# SSH to server
+ssh -i ~/.ssh/id_rsa ubuntu@$(terraform output -raw public_ip)
+
+# Watch installation logs
+sudo cloud-init status --wait  # Wait for bootstrap to complete
+sudo journalctl -u cs2.service -f  # Watch server logs
+
+# Check plugin installation
+ls -la /opt/cs2-server/game/csgo/addons/counterstrikesharp/
+```
+
+### Step 4: Verify Plugins Loaded
+Once server starts, check logs for:
+```
+[CounterStrikeSharp] Loading CounterStrikeSharp v1.x.x
+[CounterStrikeSharp] Loaded plugin: CS2Retake (or PracticeMode, Deathmatch)
+```
+
+### Step 5: Connect and Test
+```
+# In CS2 console
+connect <server_ip>:27015
+
+# Test RCON
+rcon_password your-secure-password
+rcon status
+```
+
+### Step 6: Test Plugin Features
+- **Retakes**: Join CT or T, get auto-loadout, practice post-plant scenarios
+- **Practice-Plus**: Type `.noclip`, `.god`, `.bot` in chat
+- **Deathmatch-Custom**: Instant respawn, weapon menu on spawn
+
+### Step 7: Teardown When Done
+```bash
+terraform destroy  # Remove all infrastructure
+```
+
+---
+
+## Testing Checklist
+
+- [ ] Server deploys successfully
+- [ ] CS2 downloads without errors
+- [ ] CounterStrikeSharp loads
+- [ ] Chosen plugin loads without errors
+- [ ] Can connect from CS2 client
+- [ ] Plugin features work as expected
+- [ ] RCON commands functional
+- [ ] Server runs stable for 30+ minutes
+
+---
+
+## Next Enhancements (Post Phase 1)
+
+1. **Test All 3 Plugin Modes**: Deploy with retakes, practice-plus, deathmatch-custom
+2. **Add Executes & Prefire Plugins**: Find community plugins and add URLs
+3. **Multi-Server Architecture**: Deploy 3 simultaneous servers (Phase 2)
+4. **Web Dashboard**: Start Flask/FastAPI backend (Phase 3)
+5. **Pre-bake AMI**: Build AMI with CS2 pre-installed for faster startup
