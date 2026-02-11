@@ -1,0 +1,46 @@
+# AWS Configuration
+aws_region = "us-east-2"
+project_name = "cs2-server"
+instance_type = "t3.medium"
+public_key_path = "/Users/you/.ssh/id_rsa.pub"
+ssh_allowed_cidr = "0.0.0.0/0"
+cs2_allowed_cidr = "0.0.0.0/0"
+
+# CS2 Application
+cs2_app_id = 730
+
+# Steam GSLT (required) - Get from: https://steamcommunity.com/dev/managegameservers
+gslt = ""
+
+# Server Identity
+server_name = "CS2 Server"
+server_password = ""  # Leave empty for public server
+rcon_password = "change-me"
+
+# Game Settings
+max_players = 10
+tickrate = 64  # 64 or 128 (higher = more responsive but more CPU)
+game_mode = "competitive"  # competitive, casual, deathmatch, or practice
+default_map = "de_dust2"
+
+# Workshop Configuration (optional)
+# Get collection ID from workshop URL: steamcommunity.com/sharedfiles/filedetails/?id=COLLECTION_ID
+# Get map ID from map URL: steamcommunity.com/sharedfiles/filedetails/?id=MAP_ID
+workshop_collection_id = ""
+workshop_start_map_id = ""
+
+# Map Cycle (optional)
+mapcycle = ""  # Leave empty for default
+
+# Custom CVARs (optional)
+# Example: override specific settings not in templates
+server_cvars = {
+  # "mp_roundtime" = "2.5"
+  # "mp_freezetime" = "12"
+  # "sv_alltalk" = "1"
+}
+
+common_tags = {
+  Project   = "cs2-server"
+  ManagedBy = "terraform"
+}
