@@ -157,7 +157,9 @@ resource "aws_instance" "server" {
   }
 
   root_block_device {
-    volume_size = 70 # GB - needs space for SteamCMD temporary files during CS2 download (~60GB total required)
+    # 120GB to accommodate SteamCMD download + extraction temp files (~61GB download + ~60GB extraction peak)
+    # TODO: Consider moving Docker storage to EBS volume for better space management long-term
+    volume_size = 120 # GB
     volume_type = "gp3"
     encrypted   = true
   }
