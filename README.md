@@ -151,6 +151,40 @@ The server uses these config templates (in `templates/`):
 
 To customize further, edit the templates and run `terraform apply`.
 
+### Persistent Storage (EBS Volume)
+
+**🚀 Fast redeployments!** CS2 game files (~35GB) are stored on a persistent EBS volume that survives instance destruction.
+
+**How it works:**
+- First deployment: CS2 downloads normally (~15-30 minutes depending on network)
+- Subsequent deployments: CS2 data is already there (instant startup)
+- The EBS volume persists even when you run `terraform destroy`
+
+**Managing the data volume:**
+
+```bash
+# Normal destroy - KEEPS CS2 data volume for fast redeployment
+terraform destroy
+
+# Complete teardown - DELETES CS2 data volume and all game files
+terraform destroy -var="delete_cs2_data_on_destroy=true"
+
+# Alternative: Destroy only the instance, keep volume
+terraform destroy -target=aws_instance.server
+```
+
+**Multi-server deployments:**
+The current setup supports a single server. For multiple servers:
+1. Use `count` or `for_each` on the instance and volume resources
+2. Each server gets its own tagged EBS volume
+3. Volumes automatically reattach to their corresponding instances
+
+**Volume info:**
+- Size: 50GB (adjustable in `aws_ebs_volume.cs2_data`)
+- Type: gp3 (encrypted)
+- Mounted at: `/opt/cs2-server` on the instance
+- Cost: ~$4/month when kept (vs ~30min download time)
+
 ### Connecting In-Game
 
 Use the `cs2_connect` output from Terraform:

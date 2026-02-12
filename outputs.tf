@@ -22,3 +22,13 @@ output "cs2_connect" {
   value       = "connect ${aws_instance.server.public_ip}:27015"
   description = "In-game console command to connect to the server."
 }
+
+output "cs2_data_volume_id" {
+  value       = aws_ebs_volume.cs2_data.id
+  description = "EBS volume ID containing persistent CS2 game files."
+}
+
+output "cs2_data_volume_size" {
+  value       = "${aws_ebs_volume.cs2_data.size}GB"
+  description = "Size of the persistent CS2 data volume."
+}

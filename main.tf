@@ -106,6 +106,35 @@ resource "aws_security_group" "server" {
   }
 }
 
+# Persistent EBS volume for CS2 game files
+# This volume persists across instance recreations to avoid re-downloading 35GB of CS2 data
+# For multi-server deployments: Use count or for_each with unique names per instance
+resource "aws_ebs_volume" "cs2_data" {
+  availability_zone = aws_subnet.server.availability_zone
+  size              = 100 # GB - CS2 needs ~60GB plus extraction temp space (compressed + uncompressed files during install)
+  type              = "gp3"
+  encrypted         = true
+
+  lifecycle {
+    # Prevent accidental deletion unless explicitly requested
+    prevent_destroy = false # Controlled by var.delete_cs2_data_on_destroy at destroy time
+  }
+
+  tags = {
+    Name = "${local.name}-data"
+    # For multi-server: Add unique identifier here (e.g., server index)
+  }
+}
+
+resource "aws_volume_attachment" "cs2_data" {
+  device_name = "/dev/sdf"
+  volume_id   = aws_ebs_volume.cs2_data.id
+  instance_id = aws_instance.server.id
+
+  # Force detachment on destroy to allow clean teardown
+  force_detach = true
+}
+
 resource "aws_instance" "server" {
   ami                         = data.aws_ami.ubuntu.id
   instance_type               = var.instance_type
@@ -128,7 +157,7 @@ resource "aws_instance" "server" {
   }
 
   root_block_device {
-    volume_size = 80 # GB - CS2 needs ~35GB + extraction space
+    volume_size = 70 # GB - needs space for SteamCMD temporary files during CS2 download (~60GB total required)
     volume_type = "gp3"
     encrypted   = true
   }

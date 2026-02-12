@@ -22,12 +22,56 @@ apt-get install -y docker-ce docker-ce-cli containerd.io
 systemctl enable docker
 systemctl start docker
 
-# Create config directory
+# Mount persistent EBS volume for CS2 game files
+# This volume persists across instance recreations to avoid re-downloading CS2
 config_dir="/opt/cs2-server"
-mkdir -p "$config_dir/game/csgo/cfg"
 
-# Create config directory
-config_dir="/opt/cs2-server"
+if ! grep -qs "$config_dir" /proc/mounts; then
+  echo "Setting up persistent CS2 data volume..."
+  
+  # Wait for EBS volume device to be available (AWS maps /dev/sdf to /dev/nvme1n1)
+  device="/dev/nvme1n1"
+  timeout=30
+  while [ ! -e "$device" ] && [ $timeout -gt 0 ]; do
+    echo "Waiting for device $device..."
+    sleep 2
+    timeout=$((timeout - 2))
+  done
+  
+  if [ ! -e "$device" ]; then
+    echo "ERROR: Device $device not found after timeout"
+    exit 1
+  fi
+  
+  # Format the volume if it's new (no filesystem detected)
+  if ! blkid "$device" | grep -q TYPE; then
+    echo "Formatting new CS2 data volume..."
+    mkfs.ext4 -L cs2-data "$device"
+  else
+    echo "Existing filesystem detected on CS2 data volume"
+  fi
+  
+  # Create mount point and mount the volume
+  mkdir -p "$config_dir"
+  mount "$device" "$config_dir"
+  
+  # Add to fstab for persistence across reboots (using LABEL for reliability)
+  if ! grep -qs "$config_dir" /etc/fstab; then
+    echo "LABEL=cs2-data $config_dir ext4 defaults,nofail 0 2" >> /etc/fstab
+  fi
+  
+  # Set ownership to steam user (uid 1000) for Docker container compatibility
+  chown -R 1000:1000 "$config_dir"
+  chmod 755 "$config_dir"
+  
+  echo "CS2 data volume mounted at $config_dir"
+else
+  echo "CS2 data volume already mounted at $config_dir"
+  # Ensure permissions are correct even if volume already mounted
+  chown -R 1000:1000 "$config_dir"
+fi
+
+# Create config directory structure
 mkdir -p "$config_dir/game/csgo/cfg"
 
 # Write configuration files

@@ -162,3 +162,9 @@ variable "common_tags" {
     ManagedBy = "terraform"
   }
 }
+
+variable "delete_cs2_data_on_destroy" {
+  description = "Delete the persistent CS2 data volume when running terraform destroy. Set to true to remove all CS2 game files, or false to preserve data for faster redeployments."
+  type        = bool
+  default     = false
+}
