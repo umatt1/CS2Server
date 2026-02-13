@@ -128,6 +128,7 @@ ExecStartPre=-/usr/bin/docker stop cs2-server
 ExecStartPre=-/usr/bin/docker rm cs2-server
 ExecStart=/usr/bin/docker run --rm --name cs2-server \\
   --network=host \\
+  --ulimit nofile=65536:65536 \\
   -v $config_dir:/home/steam/cs2-dedicated \\
   -e SRCDS_TOKEN=${gslt} \\
   -e CS2_SERVERNAME="${server_name}" \\
@@ -136,6 +137,7 @@ ExecStart=/usr/bin/docker run --rm --name cs2-server \\
   -e CS2_STARTMAP=${default_map} \\
   -e CS2_TICKRATE=${tickrate} \\
   -e CS2_GAMEALIAS=${game_mode} \\
+  -e STEAMAPPVALIDATE=1 \\
   $workshop_args \\
   joedwards32/cs2:latest
 ExecStop=/usr/bin/docker stop cs2-server

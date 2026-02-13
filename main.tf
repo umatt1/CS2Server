@@ -116,8 +116,8 @@ resource "aws_ebs_volume" "cs2_data" {
   encrypted         = true
 
   lifecycle {
-    # Prevent accidental deletion unless explicitly requested
-    prevent_destroy = false # Controlled by var.delete_cs2_data_on_destroy at destroy time
+    # Prevent accidental deletion of game data (remove this block to allow deletion)
+    prevent_destroy = true
   }
 
   tags = {

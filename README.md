@@ -163,14 +163,19 @@ To customize further, edit the templates and run `terraform apply`.
 **Managing the data volume:**
 
 ```bash
-# Normal destroy - KEEPS CS2 data volume for fast redeployment
+# Normal destroy - KEEPS CS2 data volume for fast redeployment (protected by default)
 terraform destroy
 
-# Complete teardown - DELETES CS2 data volume and all game files
-terraform destroy -var="delete_cs2_data_on_destroy=true"
-
-# Alternative: Destroy only the instance, keep volume
+# Destroy only the instance, keep volume
 terraform destroy -target=aws_instance.server
+
+# Complete teardown - DELETE CS2 data volume and all game files
+# Option 1: Remove it from Terraform state first
+terraform state rm aws_ebs_volume.cs2_data
+terraform destroy
+
+# Option 2: Comment out the lifecycle block in main.tf, then:
+terraform destroy
 ```
 
 **Multi-server deployments:**

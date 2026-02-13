@@ -163,8 +163,7 @@ variable "common_tags" {
   }
 }
 
-variable "delete_cs2_data_on_destroy" {
-  description = "Delete the persistent CS2 data volume when running terraform destroy. Set to true to remove all CS2 game files, or false to preserve data for faster redeployments."
-  type        = bool
-  default     = false
-}
+# Note: The EBS volume is protected from deletion by default via lifecycle.prevent_destroy = true
+# To delete the volume, either:
+# 1. Remove it from state: terraform state rm aws_ebs_volume.cs2_data
+# 2. Comment out the lifecycle block in main.tf
